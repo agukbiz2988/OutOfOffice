@@ -1,24 +1,34 @@
 Install-Module –Name ExchangeOnlineManagement
-Connect-ExchangeOnline
+Disconnect-ExchangeOnline
+Connect-ExchangeOnline -ShowBanner:$false
 
 #***CSV Location***
-$User = Import-Csv C:\importautoreply.csv
+$User = Import-Csv C:\outofoffice-main\importautoreply.csv
+
 #***American Format***
-$StartDate = "12/24/2024 12:00:00"
-$EndDate = "01/01/2025 12:00:00"
+#**** MONTH / DAY / YEAR ****
+$StartDate = "03/30/2025 12:00:00"
+$EndDate = "05/04/2025 12:00:00"
+
 #***Messages***
-$internalMessage = "out of office internal"
-$externalMessage = "out of office external"
+$Message = "out of office internal"
 
 foreach($user in $User){
 
-    Write-Host "Adding auto-reply message to -$user"
+    Write-Host "`nAdding auto-reply message to -$user"
 
     try {
-        Set-MailboxAutoreplyConfiguration -Identity $User.user -AutoReplyState Scheduled –StartTime $StartDate -EndTime $EndDate -Internalmessage $internalMessage -ExternalMessage $externalMessage
+        #Code to Use for Scheduled Auto reply message
+        Set-MailboxAutoreplyConfiguration -Identity $User.user -AutoReplyState Scheduled –StartTime $StartDate -EndTime $EndDate -Internalmessage $Message -ExternalMessage $Message
+
+        #Code to use if you DO NOT want a scehduled auto reply message
+        #Set-MailboxAutoreplyConfiguration -Identity $User.user -AutoReplyState Enabled -Internalmessage $Message -ExternalMessage $Message
+
+        Write-Host "Auto reply message added to account $User.user `n" -ForegroundColor Green 
     }
     catch {
         Write-Error -Message "Error occurred while adding auto-reply message to $user"
     }
 
 }
+
