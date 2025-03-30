@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.Windows.Forms
 # Create the form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Out of Office Manager"
-$form.Size = New-Object System.Drawing.Size(400,350)
+$form.Size = New-Object System.Drawing.Size(400,400)
 $form.StartPosition = "CenterScreen"
 
 # Label & Button for CSV Import
@@ -114,10 +114,23 @@ $toggleCheckbox.Location = New-Object System.Drawing.Point(150, 250)
 $toggleCheckbox.Checked = $true
 $form.Controls.Add($toggleCheckbox)
 
-# Apply Button
+# Log File Path Input
+$logPathLabel = New-Object System.Windows.Forms.Label
+$logPathLabel.Text = "Log File Path:"
+$logPathLabel.Location = New-Object System.Drawing.Point(10, 280)
+$logPathLabel.AutoSize = $true
+$form.Controls.Add($logPathLabel)
+
+$logPathTextBox = New-Object System.Windows.Forms.TextBox
+$logPathTextBox.Location = New-Object System.Drawing.Point(100, 280)
+$logPathTextBox.Size = New-Object System.Drawing.Size(200, 20)
+$logPathTextBox.Text = "C:\OutOfOffice-main\log\AutoReplyLog.csv"  # Default log path
+$form.Controls.Add($logPathTextBox)
+
+# Apply Button - Updated to use inputted log path
 $applyButton = New-Object System.Windows.Forms.Button
 $applyButton.Text = "Apply"
-$applyButton.Location = New-Object System.Drawing.Point(150, 280)
+$applyButton.Location = New-Object System.Drawing.Point(150, 320)
 $applyButton.Add_Click({
     try {
         Import-Module ExchangeOnlineManagement
@@ -133,6 +146,7 @@ $applyButton.Add_Click({
     $message = $msgTextBox.Text
     $enableAutoReply = $toggleCheckbox.Checked
     $useSchedule = $scheduleCheckbox.Checked
+    $logPath = $logPathTextBox.Text  # Use the inputted log file path
 
     if (-not (Test-Path $csvFile)) {
         [System.Windows.Forms.MessageBox]::Show("CSV file not found!", "Error", "OK", "Error")
@@ -142,7 +156,6 @@ $applyButton.Add_Click({
     $Users = Import-Csv $csvFile
     $logResults = @()
     $timestamp = (Get-Date).ToString("yyyy-MM-dd_HH-mm-ss")
-    $logPath = "C:\OutOfOffice-main\log\AutoReplyLog_$timestamp.csv"
 
     foreach ($user in $Users) {
         try {
